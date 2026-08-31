@@ -8,6 +8,7 @@ export type PublicState = {
   entries: Entry[];
   actions: AppData["actions"];
   rewards: AppData["rewards"];
+  malus: AppData["malus"];
   isAdmin: boolean;
 };
 
@@ -21,6 +22,7 @@ export const getState = createServerFn({ method: "GET" }).handler(async (): Prom
     entries: [...data.entries].sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 100),
     actions: data.actions,
     rewards: data.rewards,
+    malus: data.malus ?? [],
     isAdmin: session.data.admin === true,
   };
 });
@@ -81,6 +83,7 @@ export const saveSettings = createServerFn({ method: "POST" })
       childName: string;
       actions: AppData["actions"];
       rewards: AppData["rewards"];
+      malus: AppData["malus"];
     }) => data,
   )
   .handler(async ({ data }) => {
@@ -101,6 +104,12 @@ export const saveSettings = createServerFn({ method: "POST" })
       label: String(r.label).trim().slice(0, 120),
       cost: Math.max(1, Math.min(1000, Math.round(Number(r.cost) || 1))),
       emoji: String(r.emoji || "🎁").slice(0, 4),
+    }));
+    current.malus = (data.malus ?? []).slice(0, 40).map((m) => ({
+      id: m.id || s.newId(),
+      label: String(m.label).trim().slice(0, 120),
+      points: Math.max(1, Math.min(100, Math.round(Number(m.points) || 1))),
+      emoji: String(m.emoji || "💔").slice(0, 4),
     }));
     await s.writeData(current);
     return { ok: true as const };

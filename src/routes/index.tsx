@@ -32,10 +32,6 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { data } = useSuspenseQuery(stateQuery);
-  const nextReward = [...data.rewards]
-    .sort((a, b) => a.cost - b.cost)
-    .find((r) => r.cost > data.points);
-  const progress = nextReward ? Math.min(100, (data.points / nextReward.cost) * 100) : 100;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 md:py-12">
@@ -54,34 +50,24 @@ function Dashboard() {
         </Link>
       </header>
 
-      <section className="card-pop mt-8 overflow-hidden">
-        <div className="grid gap-6 p-6 md:grid-cols-[auto_1fr] md:items-center md:p-8">
-          <div className="flex flex-col items-center justify-center rounded-3xl bg-sunny px-8 py-6 text-sunny-foreground">
-            <span className="text-6xl font-extrabold leading-none md:text-7xl">{data.points}</span>
-            <span className="mt-1 font-display text-lg font-bold">bollini</span>
-          </div>
-          <div>
-            {nextReward ? (
-              <>
-                <h2 className="text-xl font-bold">
-                  Prossimo traguardo: {nextReward.emoji} {nextReward.label}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Ti mancano <strong>{nextReward.cost - data.points}</strong> bollini su{" "}
-                  {nextReward.cost}.
-                </p>
-              </>
-            ) : (
-              <h2 className="text-xl font-bold">Hai bollini per tutti i premi! 🎉</h2>
-            )}
-            <div className="mt-4 h-5 w-full overflow-hidden rounded-full border-2 border-border bg-secondary">
-              <div
-                className="h-full rounded-full bg-accent transition-all duration-700"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+      <section className="card-pop relative mt-8 overflow-hidden px-6 py-10 text-center md:py-14">
+        <span className="pointer-events-none absolute left-6 top-6 animate-floaty text-3xl" aria-hidden>✨</span>
+        <span className="pointer-events-none absolute right-8 top-10 animate-floaty text-2xl [animation-delay:-1.4s]" aria-hidden>⭐</span>
+        <span className="pointer-events-none absolute bottom-8 left-10 animate-floaty text-2xl [animation-delay:-2.6s]" aria-hidden>🌟</span>
+        <span className="pointer-events-none absolute bottom-6 right-12 animate-floaty text-3xl [animation-delay:-0.8s]" aria-hidden>✨</span>
+
+        <div className="relative mx-auto flex w-fit items-center justify-center">
+          <div className="animate-halo absolute h-56 w-56 rounded-full bg-sunny/50 md:h-64 md:w-64" aria-hidden />
+          <div className="relative flex h-48 w-48 flex-col items-center justify-center rounded-full border-8 border-sunny-foreground/15 bg-sunny text-sunny-foreground shadow-[inset_0_-12px_0_oklch(0_0_0/0.06)] md:h-56 md:w-56">
+            <span className="font-display text-7xl font-extrabold leading-none md:text-8xl">
+              {data.points}
+            </span>
+            <span className="mt-1 font-display text-xl font-bold">bollini</span>
           </div>
         </div>
+        <p className="mt-6 font-display text-lg font-bold text-muted-foreground">
+          Ogni bollino è una piccola vittoria! 🏅
+        </p>
       </section>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -131,6 +117,24 @@ function Dashboard() {
           </ul>
         </section>
       </div>
+
+      <section className="card-pop mt-6 p-6">
+        <h2 className="text-2xl font-bold">Attenzione ai malus! 💔</h2>
+        <ul className="mt-4 space-y-3">
+          {data.malus.map((m) => (
+            <li
+              key={m.id}
+              className="flex items-center gap-3 rounded-2xl bg-destructive/10 px-4 py-3"
+            >
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="flex-1 font-semibold">{m.label}</span>
+              <span className="rounded-full bg-destructive px-3 py-1 font-display text-sm font-bold text-destructive-foreground">
+                −{m.points}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="card-pop mt-6 p-6">
         <h2 className="text-2xl font-bold">Storico</h2>

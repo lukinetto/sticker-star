@@ -124,3 +124,33 @@
     transform: translateY(1px);
   }
 }
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(6deg);
+  }
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.35;
+  }
+}
+
+@utility animate-floaty {
+  animation: floaty 4s ease-in-out infinite;
+}
+
+@utility animate-halo {
+  animation: halo 3.2s ease-in-out infinite;
+}

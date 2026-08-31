@@ -12,12 +12,14 @@ export type Entry = {
 
 export type Action = { id: string; label: string; points: number; emoji: string };
 export type Reward = { id: string; label: string; cost: number; emoji: string };
+export type Malus = { id: string; label: string; points: number; emoji: string };
 
 export type AppData = {
   childName: string;
   entries: Entry[];
   actions: Action[];
   rewards: Reward[];
+  malus: Malus[];
 };
 
 const DEFAULT_DATA: AppData = {
@@ -35,6 +37,12 @@ const DEFAULT_DATA: AppData = {
     { id: "r3", label: "Gelato al parco", cost: 30, emoji: "🍦" },
     { id: "r4", label: "Pomeriggio con un'amica", cost: 50, emoji: "🎈" },
     { id: "r5", label: "Cinema in famiglia", cost: 80, emoji: "🎬" },
+  ],
+  malus: [
+    { id: "m1", label: "Non ascolto quando me lo ripetono", points: 2, emoji: "🙉" },
+    { id: "m2", label: "Lascio la camera in disordine", points: 3, emoji: "🌪️" },
+    { id: "m3", label: "Rispondo male a mamma o papà", points: 5, emoji: "😤" },
+    { id: "m4", label: "Litigo con il fratello o la sorella", points: 4, emoji: "⚡" },
   ],
   entries: [],
 };

@@ -119,6 +119,24 @@ function Dashboard() {
       </div>
 
       <section className="card-pop mt-6 p-6">
+        <h2 className="text-2xl font-bold">Attenzione ai malus! 💔</h2>
+        <ul className="mt-4 space-y-3">
+          {data.malus.map((m) => (
+            <li
+              key={m.id}
+              className="flex items-center gap-3 rounded-2xl bg-destructive/10 px-4 py-3"
+            >
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="flex-1 font-semibold">{m.label}</span>
+              <span className="rounded-full bg-destructive px-3 py-1 font-display text-sm font-bold text-destructive-foreground">
+                −{m.points}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="card-pop mt-6 p-6">
         <h2 className="text-2xl font-bold">Storico</h2>
         {data.entries.length === 0 ? (
           <p className="mt-3 text-muted-foreground">

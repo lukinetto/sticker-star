@@ -42,12 +42,21 @@ function Dashboard() {
           </p>
           <h1 className="text-4xl font-extrabold text-foreground md:text-5xl">{data.childName}</h1>
         </div>
-        <Link
-          to="/admin"
-          className="btn-pop btn-pop-hover border-2 border-border bg-card text-sm text-muted-foreground"
-        >
-          Area genitori
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/richieste"
+            className="btn-pop btn-pop-hover bg-primary text-sm text-primary-foreground"
+          >
+            ✋ Fai una richiesta
+          </Link>
+          <Link
+            to="/admin"
+            className="btn-pop btn-pop-hover border-2 border-border bg-card text-sm text-muted-foreground"
+          >
+            Area genitori
+          </Link>
+        </div>
+
       </header>
 
       <section className="card-pop relative mt-8 overflow-hidden px-6 py-10 text-center md:py-14">

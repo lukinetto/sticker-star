@@ -14,13 +14,27 @@ export type Action = { id: string; label: string; points: number; emoji: string 
 export type Reward = { id: string; label: string; cost: number; emoji: string };
 export type Malus = { id: string; label: string; points: number; emoji: string };
 
+export type Request = {
+  id: string;
+  ts: string;
+  kind: "earn" | "spend";
+  label: string;
+  emoji: string;
+  points: number;
+  note?: string;
+  status: "pending" | "approved" | "rejected";
+  decidedAt?: string;
+};
+
 export type AppData = {
   childName: string;
   entries: Entry[];
   actions: Action[];
   rewards: Reward[];
   malus: Malus[];
+  requests: Request[];
 };
+
 
 const DEFAULT_DATA: AppData = {
   childName: "Campionessa",
@@ -45,6 +59,8 @@ const DEFAULT_DATA: AppData = {
     { id: "m4", label: "Litigo con il fratello o la sorella", points: 4, emoji: "⚡" },
   ],
   entries: [],
+  requests: [],
+
 };
 
 function dataFile() {

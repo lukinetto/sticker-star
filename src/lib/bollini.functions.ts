@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { useSession } from "@tanstack/react-start/server";
-import type { AppData, Entry } from "./bollini.server";
+import type { AppData, Entry, Request as BollinoRequest } from "./bollini.server";
 
 export type PublicState = {
   childName: string;
@@ -9,6 +9,7 @@ export type PublicState = {
   actions: AppData["actions"];
   rewards: AppData["rewards"];
   malus: AppData["malus"];
+  requests: BollinoRequest[];
   isAdmin: boolean;
 };
 
@@ -23,9 +24,88 @@ export const getState = createServerFn({ method: "GET" }).handler(async (): Prom
     actions: data.actions,
     rewards: data.rewards,
     malus: data.malus ?? [],
+    requests: [...(data.requests ?? [])].sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 60),
     isAdmin: session.data.admin === true,
   };
 });
+
+export const createRequest = createServerFn({ method: "POST" })
+  .inputValidator((data: { kind: "earn" | "spend"; refId: string; note?: string }) => data)
+  .handler(async ({ data }) => {
+    const s = await import("./bollini.server");
+    const current = await s.readData();
+    current.requests = current.requests ?? [];
+
+    const pending = current.requests.filter((r) => r.status === "pending");
+    if (pending.length >= 30) throw new Error("Troppe richieste in attesa");
+
+    const kind: "earn" | "spend" = data.kind === "spend" ? "spend" : "earn";
+    const source =
+      kind === "earn"
+        ? current.actions.find((a) => a.id === data.refId)
+        : current.rewards.find((r) => r.id === data.refId);
+    if (!source) throw new Error("Voce non trovata");
+
+    const points = kind === "earn" ? (source as AppData["actions"][number]).points : (source as AppData["rewards"][number]).cost;
+
+    if (pending.some((r) => r.kind === kind && r.label === source.label)) {
+      return { ok: false as const, reason: "duplicate" as const };
+    }
+
+    const note = String(data.note ?? "").trim().slice(0, 200);
+    current.requests.push({
+      id: s.newId(),
+      ts: new Date().toISOString(),
+      kind,
+      label: source.label,
+      emoji: source.emoji,
+      points,
+      ...(note ? { note } : {}),
+      status: "pending",
+    });
+
+    await s.writeData(current);
+    return { ok: true as const };
+  });
+
+export const decideRequest = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: string; approve: boolean }) => data)
+  .handler(async ({ data }) => {
+    const s = await import("./bollini.server");
+    const session = await useSession<{ admin?: boolean }>(s.sessionConfig);
+    if (!session.data.admin) throw new Error("Non autorizzato");
+
+    const current = await s.readData();
+    current.requests = current.requests ?? [];
+    const req = current.requests.find((r) => r.id === data.id);
+    if (!req || req.status !== "pending") return { ok: false as const };
+
+    req.status = data.approve ? "approved" : "rejected";
+    req.decidedAt = new Date().toISOString();
+
+    if (data.approve) {
+      current.entries.push({
+        id: s.newId(),
+        ts: new Date().toISOString(),
+        delta: req.kind === "earn" ? req.points : -req.points,
+        label: req.kind === "earn" ? req.label : `Premio: ${req.label}`,
+        kind: req.kind,
+      });
+    }
+    await s.writeData(current);
+    return { ok: true as const };
+  });
+
+export const clearDecidedRequests = createServerFn({ method: "POST" }).handler(async () => {
+  const s = await import("./bollini.server");
+  const session = await useSession<{ admin?: boolean }>(s.sessionConfig);
+  if (!session.data.admin) throw new Error("Non autorizzato");
+  const current = await s.readData();
+  current.requests = (current.requests ?? []).filter((r) => r.status === "pending");
+  await s.writeData(current);
+  return { ok: true as const };
+});
+
 
 export const login = createServerFn({ method: "POST" })
   .inputValidator((data: { pin: string }) => data)

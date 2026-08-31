@@ -9,7 +9,10 @@ import {
   addEntry,
   deleteEntry,
   saveSettings,
+  decideRequest,
+  clearDecidedRequests,
 } from "@/lib/bollini.functions";
+
 
 const stateQuery = queryOptions({
   queryKey: ["bollini-state"],
@@ -41,6 +44,9 @@ function Admin() {
   const doAdd = useServerFn(addEntry);
   const doDelete = useServerFn(deleteEntry);
   const doSave = useServerFn(saveSettings);
+  const doDecide = useServerFn(decideRequest);
+  const doClear = useServerFn(clearDecidedRequests);
+
 
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState(false);
@@ -51,6 +57,10 @@ function Admin() {
   const [rewards, setRewards] = useState(data.rewards);
   const [malus, setMalus] = useState(data.malus);
   const [saved, setSaved] = useState(false);
+
+  const pendingRequests = data.requests.filter((r) => r.status === "pending");
+  const decidedRequests = data.requests.filter((r) => r.status !== "pending");
+
 
   if (!data.isAdmin) {
     return (
@@ -108,6 +118,98 @@ function Admin() {
           </button>
         </div>
       </header>
+
+      <section className="card-pop mt-6 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-bold">
+            Richieste di {data.childName}
+            {pendingRequests.length > 0 && (
+              <span className="ml-2 rounded-full bg-accent px-3 py-1 font-display text-sm text-accent-foreground">
+                {pendingRequests.length} da approvare
+              </span>
+            )}
+          </h2>
+          {decidedRequests.length > 0 && (
+            <button
+              className="text-sm text-muted-foreground underline"
+              onClick={async () => {
+                await doClear({});
+                await refresh();
+              }}
+            >
+              pulisci le richieste già decise
+            </button>
+          )}
+        </div>
+
+        {pendingRequests.length === 0 ? (
+          <p className="mt-3 text-muted-foreground">Nessuna richiesta in attesa.</p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {pendingRequests.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center gap-3 rounded-2xl bg-secondary/50 px-4 py-3"
+              >
+                <span className="text-2xl">{r.emoji}</span>
+                <span className="min-w-40 flex-1 font-semibold leading-tight">
+                  {r.kind === "earn" ? "Dichiara: " : "Chiede: "}
+                  {r.label}
+                  {r.note && (
+                    <span className="block text-xs text-muted-foreground">“{r.note}”</span>
+                  )}
+                  <span className="block text-xs text-muted-foreground">
+                    {new Date(r.ts).toLocaleString("it-IT", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </span>
+                <span className="font-display font-bold">
+                  {r.kind === "earn" ? `+${r.points}` : `−${r.points}`}
+                </span>
+                <button
+                  className="btn-pop btn-pop-hover bg-mint text-sm text-mint-foreground"
+                  onClick={async () => {
+                    await doDecide({ data: { id: r.id, approve: true } });
+                    await refresh();
+                  }}
+                >
+                  Approva
+                </button>
+                <button
+                  className="btn-pop btn-pop-hover bg-destructive text-sm text-destructive-foreground"
+                  onClick={async () => {
+                    await doDecide({ data: { id: r.id, approve: false } });
+                    await refresh();
+                  }}
+                >
+                  Rifiuta
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {decidedRequests.length > 0 && (
+          <ul className="mt-4 space-y-1 border-t border-border pt-3 text-sm">
+            {decidedRequests.slice(0, 8).map((r) => (
+              <li key={r.id} className="flex items-center gap-2 text-muted-foreground">
+                <span>{r.emoji}</span>
+                <span className="flex-1">{r.label}</span>
+                <span
+                  className={r.status === "approved" ? "text-primary" : "text-destructive"}
+                >
+                  {r.status === "approved" ? "approvata" : "rifiutata"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
 
       <section className="card-pop mt-6 p-6">
         <h2 className="text-xl font-bold">Assegna bollini rapidi</h2>

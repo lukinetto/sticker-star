@@ -143,13 +143,42 @@ sudo systemctl restart bollini
 
 ## 8) Aggiornare l'app dopo modifiche in Lovable
 
+Prima crea sempre una copia di sicurezza dei dati, poi aggiorna e ripristina i
+permessi del file:
+
 ```bash
 cd /opt/bollini
+sudo cp data/bollini.json /tmp/bollini-$(date +%F-%H%M%S).json
 git pull
 npm install
 NITRO_PRESET=node-server npm run build
+sudo chown -R www-data:www-data /opt/bollini/data
 sudo systemctl restart bollini
 ```
+
+`data/bollini.json` contiene i dati reali ed è escluso da Git: gli aggiornamenti
+del codice non lo sovrascrivono.
+
+### Solo per l'aggiornamento che introduce questa correzione
+
+Se `git pull` segnala che il file non tracciato `data/bollini.json` verrebbe
+sovrascritto, esegui una volta sola:
+
+```bash
+cd /opt/bollini
+sudo systemctl stop bollini
+sudo cp data/bollini.json /tmp/bollini.json.backup
+sudo rm data/bollini.json
+git pull
+sudo cp /tmp/bollini.json.backup data/bollini.json
+sudo chown www-data:www-data data/bollini.json
+npm install
+NITRO_PRESET=node-server npm run build
+sudo systemctl start bollini
+```
+
+Non saltare la copia iniziale: contiene totale, storico, configurazione e
+richieste già salvate.
 
 ## 9) Backup dei dati
 

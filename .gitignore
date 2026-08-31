@@ -16,6 +16,9 @@ dist-ssr
 .nitro
 *.local
 
+# Runtime data (kept on the server, never versioned)
+data/bollini.json
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

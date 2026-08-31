@@ -167,3 +167,20 @@ Tutto sta in `/opt/bollini/data/bollini.json`:
 - Tua figlia apre l'indirizzo e vede punti, azioni e premi.
 - Tu vai su `/admin`, inserisci il PIN e con un tocco assegni i bollini o scali un premio.
 - In "Impostazioni" cambi nome, azioni, premi e relativi valori.
+
+## Installare l'app su Android
+
+La webapp è installabile ("Aggiungi a schermata Home"):
+
+1. Serve **HTTPS** (Chrome installa solo siti sicuri). Se usi Nginx, attiva un certificato con
+   `sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d bollini.tuodominio.it`.
+2. Apri il sito su Android con Chrome → menu ⋮ → **Installa app** / **Aggiungi a schermata Home**.
+3. L'icona è quella gialla con la stellina; l'app si apre a schermo intero senza barra del browser.
+
+Nota: non c'è service worker, quindi serve la connessione al server di casa (o la VPN) per usarla.
+
+## Pagina richieste
+
+- `/richieste` — la pagina della bambina: dichiara le azioni fatte e chiede i premi.
+- Le richieste restano "in attesa" finché non le approvi da `/admin` (sezione "Richieste di ...").
+- Solo l'approvazione muove i bollini: il rifiuto non toglie nulla.

@@ -49,6 +49,7 @@ function Admin() {
   const [childName, setChildName] = useState(data.childName);
   const [actions, setActions] = useState(data.actions);
   const [rewards, setRewards] = useState(data.rewards);
+  const [malus, setMalus] = useState(data.malus);
   const [saved, setSaved] = useState(false);
 
   if (!data.isAdmin) {
@@ -121,6 +122,20 @@ function Admin() {
               }}
             >
               {a.emoji} {a.label} +{a.points}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {data.malus.map((m) => (
+            <button
+              key={m.id}
+              className="btn-pop btn-pop-hover bg-destructive text-sm text-destructive-foreground"
+              onClick={async () => {
+                await doAdd({ data: { label: `Malus: ${m.label}`, delta: -m.points, kind: "adjust" } });
+                await refresh();
+              }}
+            >
+              {m.emoji} {m.label} −{m.points}
             </button>
           ))}
         </div>

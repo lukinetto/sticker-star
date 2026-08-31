@@ -8,6 +8,7 @@ export type PublicState = {
   entries: Entry[];
   actions: AppData["actions"];
   rewards: AppData["rewards"];
+  malus: AppData["malus"];
   isAdmin: boolean;
 };
 
@@ -21,6 +22,7 @@ export const getState = createServerFn({ method: "GET" }).handler(async (): Prom
     entries: [...data.entries].sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 100),
     actions: data.actions,
     rewards: data.rewards,
+    malus: data.malus ?? [],
     isAdmin: session.data.admin === true,
   };
 });

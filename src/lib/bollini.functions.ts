@@ -52,6 +52,7 @@ export const createRequest = createServerFn({ method: "POST" })
       return { ok: false as const, reason: "duplicate" as const };
     }
 
+    const note = String(data.note ?? "").trim().slice(0, 200);
     current.requests.push({
       id: s.newId(),
       ts: new Date().toISOString(),
@@ -59,9 +60,10 @@ export const createRequest = createServerFn({ method: "POST" })
       label: source.label,
       emoji: source.emoji,
       points,
-      note: String(data.note ?? "").trim().slice(0, 200) || undefined,
+      ...(note ? { note } : {}),
       status: "pending",
     });
+
     await s.writeData(current);
     return { ok: true as const };
   });

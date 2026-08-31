@@ -59,6 +59,8 @@ const DEFAULT_DATA: AppData = {
     { id: "m4", label: "Litigo con il fratello o la sorella", points: 4, emoji: "⚡" },
   ],
   entries: [],
+  requests: [],
+
 };
 
 function dataFile() {

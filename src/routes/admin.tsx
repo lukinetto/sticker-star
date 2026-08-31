@@ -291,41 +291,7 @@ function Admin() {
         </div>
 
         <h3 className="mt-6 font-display text-lg font-bold">Premi</h3>
-        <div className="mt-2 space-y-2">
-          {rewards.map((r, i) => (
-            <div key={r.id} className="flex gap-2">
-              <input
-                value={r.emoji}
-                onChange={(e) =>
-                  setRewards(rewards.map((x, j) => (i === j ? { ...x, emoji: e.target.value } : x)))
-                }
-                className="w-14 rounded-xl border-2 border-input bg-background px-2 py-2 text-center"
-              />
-              <input
-                value={r.label}
-                onChange={(e) =>
-                  setRewards(rewards.map((x, j) => (i === j ? { ...x, label: e.target.value } : x)))
-                }
-                className="flex-1 rounded-xl border-2 border-input bg-background px-3 py-2"
-              />
-              <input
-                type="number"
-                value={r.cost}
-                onChange={(e) =>
-                  setRewards(
-                    rewards.map((x, j) => (i === j ? { ...x, cost: Number(e.target.value) } : x)),
-                  )
-                }
-                className="w-20 rounded-xl border-2 border-input bg-background px-2 py-2"
-              />
-              <button
-                className="px-2 text-destructive"
-                onClick={() => setRewards(rewards.filter((_, j) => j !== i))}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+...
           <button
             className="btn-pop btn-pop-hover bg-secondary text-sm text-secondary-foreground"
             onClick={() =>
@@ -339,11 +305,60 @@ function Admin() {
           </button>
         </div>
 
+        <h3 className="mt-6 font-display text-lg font-bold">Malus (bollini che si perdono)</h3>
+        <div className="mt-2 space-y-2">
+          {malus.map((m, i) => (
+            <div key={m.id} className="flex gap-2">
+              <input
+                value={m.emoji}
+                onChange={(e) =>
+                  setMalus(malus.map((x, j) => (i === j ? { ...x, emoji: e.target.value } : x)))
+                }
+                className="w-14 rounded-xl border-2 border-input bg-background px-2 py-2 text-center"
+              />
+              <input
+                value={m.label}
+                onChange={(e) =>
+                  setMalus(malus.map((x, j) => (i === j ? { ...x, label: e.target.value } : x)))
+                }
+                className="flex-1 rounded-xl border-2 border-input bg-background px-3 py-2"
+              />
+              <input
+                type="number"
+                value={m.points}
+                onChange={(e) =>
+                  setMalus(
+                    malus.map((x, j) => (i === j ? { ...x, points: Number(e.target.value) } : x)),
+                  )
+                }
+                className="w-20 rounded-xl border-2 border-input bg-background px-2 py-2"
+              />
+              <button
+                className="px-2 text-destructive"
+                onClick={() => setMalus(malus.filter((_, j) => j !== i))}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            className="btn-pop btn-pop-hover bg-secondary text-sm text-secondary-foreground"
+            onClick={() =>
+              setMalus([
+                ...malus,
+                { id: `new-${Date.now()}`, label: "Nuovo malus", points: 1, emoji: "💔" },
+              ])
+            }
+          >
+            + Aggiungi malus
+          </button>
+        </div>
+
         <div className="mt-6 flex items-center gap-3">
           <button
             className="btn-pop btn-pop-hover bg-primary text-primary-foreground"
             onClick={async () => {
-              await doSave({ data: { childName, actions, rewards } });
+              await doSave({ data: { childName, actions, rewards, malus } });
               setSaved(true);
               await refresh();
               setTimeout(() => setSaved(false), 2000);

@@ -291,7 +291,41 @@ function Admin() {
         </div>
 
         <h3 className="mt-6 font-display text-lg font-bold">Premi</h3>
-...
+        <div className="mt-2 space-y-2">
+          {rewards.map((r, i) => (
+            <div key={r.id} className="flex gap-2">
+              <input
+                value={r.emoji}
+                onChange={(e) =>
+                  setRewards(rewards.map((x, j) => (i === j ? { ...x, emoji: e.target.value } : x)))
+                }
+                className="w-14 rounded-xl border-2 border-input bg-background px-2 py-2 text-center"
+              />
+              <input
+                value={r.label}
+                onChange={(e) =>
+                  setRewards(rewards.map((x, j) => (i === j ? { ...x, label: e.target.value } : x)))
+                }
+                className="flex-1 rounded-xl border-2 border-input bg-background px-3 py-2"
+              />
+              <input
+                type="number"
+                value={r.cost}
+                onChange={(e) =>
+                  setRewards(
+                    rewards.map((x, j) => (i === j ? { ...x, cost: Number(e.target.value) } : x)),
+                  )
+                }
+                className="w-20 rounded-xl border-2 border-input bg-background px-2 py-2"
+              />
+              <button
+                className="px-2 text-destructive"
+                onClick={() => setRewards(rewards.filter((_, j) => j !== i))}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
           <button
             className="btn-pop btn-pop-hover bg-secondary text-sm text-secondary-foreground"
             onClick={() =>

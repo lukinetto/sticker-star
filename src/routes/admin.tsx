@@ -44,6 +44,9 @@ function Admin() {
   const doAdd = useServerFn(addEntry);
   const doDelete = useServerFn(deleteEntry);
   const doSave = useServerFn(saveSettings);
+  const doDecide = useServerFn(decideRequest);
+  const doClear = useServerFn(clearDecidedRequests);
+
 
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState(false);

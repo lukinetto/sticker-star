@@ -58,6 +58,10 @@ function Admin() {
   const [malus, setMalus] = useState(data.malus);
   const [saved, setSaved] = useState(false);
 
+  const pendingRequests = data.requests.filter((r) => r.status === "pending");
+  const decidedRequests = data.requests.filter((r) => r.status !== "pending");
+
+
   if (!data.isAdmin) {
     return (
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
